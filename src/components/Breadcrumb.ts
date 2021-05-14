@@ -1,19 +1,26 @@
+import { BreadcrumbState, FilePath } from "@types";
+
 const Breadcrumb = () => {
 
-    const state = {};
-    const setState = () => {
-
+    const state: BreadcrumbState = { 
+        filePath: [{ name: "root" }] 
+    };
+    const setFilePath = (filePath: FilePath[]) => {
+        state.filePath = [...filePath];
         render();
     }
 
-    const root = document.createElement("div");
+    const root = document.createElement("nav");
+    root.className = "Breadcrumb";
     const render = () => {
         root.innerHTML = `
-            <p>Breadcrumb</p>
+            ${state.filePath.map(v => (
+            `<div>${v.name}</div>`
+        )).join(``)}
         `
     }
     render();
 
-    return { root, state, setState }
+    return { root, state, setFilePath }
 }
 export default Breadcrumb;

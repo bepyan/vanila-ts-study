@@ -7,7 +7,7 @@ interface baseFetchProps {
 }
 const baseFetch = async (props: baseFetchProps) => {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 4000);
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
     try {
         const res = await fetch(`${ip}${props.url}`, {
             method: props.method,
