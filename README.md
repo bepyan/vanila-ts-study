@@ -1,5 +1,21 @@
-# vanilla-ts-study
+# Vanilla-TS-study
 
-### http-server
+The Project to solve 
+https://programmers.co.kr/skill_check_assignments/100
 
-### typescript
+### USING
+- http-server
+- typescript
+
+---
+### How to start?
+
+
+```
+yarn install
+yarn tsc -watch
+```
+new terminal
+```
+yarn start
+```
