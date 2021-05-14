@@ -4,6 +4,7 @@
   border-bottom: 1px solid #ccc;
   display: flex;
   flex-direction: row;
+  cursor: pointer;
 }
 
 .Breadcrumb > div {

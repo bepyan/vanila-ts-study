@@ -1,30 +1,17 @@
-import { useFilePath, Node, NodesState } from "@types";
-import { getNodes } from "../api/nodes.js";
+import { useFilePath, useImgPath, useNodeList } from "@types";
+import { getNodes, getRootNodes } from "../api/nodes.js";
 import { findParent } from "../util.js";
 
 interface NodesProps {
+    useNodeList: useNodeList
     useFilePath: useFilePath
+    useImgPath: useImgPath
 }
-const Nodes = ({ useFilePath }: NodesProps) => {
-    // State
-    const { filePath, setFilePath } = useFilePath;
-
-    const state: NodesState = {
-        nodeList: []
-    }
-    const setNodeList = (nodeList: Node[]) => {
-        state.nodeList = nodeList;
-        render();
-    }
-    const getNodeList = (id: string) => {
-        const init = async () => setNodeList(await getNodes(id));
-        init();
-    }
-
+const Nodes = ({ useNodeList, useFilePath, useImgPath }: NodesProps) => {
     // Render
     const root = document.createElement("div");
 
-    const renderNodeList = () => state.nodeList.map(v => {
+    const renderNodeList = () => useNodeList.nodeList.map(v => {
         const fileName = v.type === "DIRECTORY" ? v.name : v.filePath;
         return `
             <div class="Node ${v.type} ${v.id} ${fileName}"> 
@@ -35,8 +22,8 @@ const Nodes = ({ useFilePath }: NodesProps) => {
     }).join(``);
 
     const renderPrev = () => {
-        return filePath[filePath.length - 1].name === "root" ? '' : `
-            <div class="Node DIRECTORY ${state.nodeList[0].parent?.id}">
+        return useFilePath.filePath.length === 1 ? '' : `
+            <div class="Node DIRECTORY">
                 <img src="./assets/prev.png">
             </div>
         `
@@ -50,8 +37,15 @@ const Nodes = ({ useFilePath }: NodesProps) => {
             </div>
         `
     }
+    render();
 
-    // Eventlistener
+    // Event
+    const getNodeList = (id: string) => {
+        const init = async () => {
+            useNodeList.setNodeList(id === "root" ? await getRootNodes() : await getNodes(id));
+        }
+        init();
+    }
     root.addEventListener("click", e => {
         if (e.target === null)
             return;
@@ -62,18 +56,25 @@ const Nodes = ({ useFilePath }: NodesProps) => {
             return;
 
         const [_, type, id, fileName] = target.className.split(" ");
-        if(type === "DIRECTORY"){
-            setFilePath([...filePath, {name: fileName}])
-            getNodeList(id);
+
+        const { filePath, setFilePath } = useFilePath;
+        if (type === "DIRECTORY") {
+            if (fileName === undefined) {
+                const len = filePath.length;
+                getNodeList(filePath[len - 2].id);
+                setFilePath(filePath.slice(0, len - 1));
+            }
+            else {
+                getNodeList(id);
+                setFilePath([...filePath, { name: fileName, id }]);
+            }
+
         }
-        else{
-            
+        else {
+            useImgPath.setImgPath(fileName);
         }
     })
 
-    // Main
-    render();
-
-    return { root, state, setNodeList }
+    return { root, render }
 }
 export default Nodes;

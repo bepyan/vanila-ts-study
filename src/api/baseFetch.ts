@@ -1,3 +1,5 @@
+import { toggleLoading } from "../components/Loading.js";
+
 const ip = `https://zl3m4qq0l9.execute-api.ap-northeast-2.amazonaws.com/dev`;
 
 interface baseFetchProps {
@@ -6,6 +8,7 @@ interface baseFetchProps {
     body?: any
 }
 const baseFetch = async (props: baseFetchProps) => {
+    toggleLoading();
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 8000);
     try {
@@ -25,6 +28,7 @@ const baseFetch = async (props: baseFetchProps) => {
         console.log("[baseFetch error]", e)
     } finally {
         clearTimeout(timeoutId)
+        toggleLoading();
     }
 }
 

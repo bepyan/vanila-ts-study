@@ -1,26 +1,44 @@
-import { BreadcrumbState, FilePath } from "@types";
+import { useFilePath, useNodeList } from "@types";
+import { getNodes, getRootNodes } from "../api/nodes.js";
 
-const Breadcrumb = () => {
+interface props {
+    useFilePath: useFilePath,
+    useNodeList: useNodeList
+}
 
-    const state: BreadcrumbState = { 
-        filePath: [{ name: "root" }] 
-    };
-    const setFilePath = (filePath: FilePath[]) => {
-        state.filePath = [...filePath];
-        render();
-    }
+const Breadcrumb = ({ useFilePath, useNodeList }: props) => {
 
     const root = document.createElement("nav");
     root.className = "Breadcrumb";
     const render = () => {
         root.innerHTML = `
-            ${state.filePath.map(v => (
-            `<div>${v.name}</div>`
+            ${useFilePath.filePath.map((v, idx) => (
+            `<div class="crumb ${idx} ${v.id}">${v.name}</div>`
         )).join(``)}
         `
     }
     render();
 
-    return { root, state, setFilePath }
+    root.addEventListener("click", e => {
+        const target = <HTMLElement>e.target;
+        const [name, i, id] = target.className.split(" ")
+        const idx = Number(i);
+
+        if (name === "crumb") {
+            const { filePath, setFilePath } = useFilePath;
+            if (idx + 1 === filePath.length)
+                return;
+
+            setFilePath(filePath.slice(0, idx + 1));
+
+            const dataFetch = async () => {
+                const data = id === "root" ? await getRootNodes() : await getNodes(id);
+                useNodeList.setNodeList(data);
+            }
+            dataFetch();
+        }
+    })
+
+    return { root, render }
 }
 export default Breadcrumb;
